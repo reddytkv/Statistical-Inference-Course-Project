@@ -26,15 +26,18 @@ In this project you will investigate the exponential distribution in R and compa
 
 Illustrate via simulation and associated explanatory text the properties of the distribution of the mean of 40 exponentials. You should
 
-Show the sample mean and compare it to the theoretical mean of the distribution.
-Show how variable the sample is (via variance) and compare it to the theoretical variance of the distribution.
-Show that the distribution is approximately normal.
+1. Show the sample mean and compare it to the theoretical mean of the distribution.
+2. Show how variable the sample is (via variance) and compare it to the theoretical variance of the distribution.
+3. Show that the distribution is approximately normal.
+
 In point 3, focus on the difference between the distribution of a large collection of random exponentials and the distribution of a large collection of averages of 40 exponentials.
 
 As a motivating example, compare the distribution of 1000 random uniforms
+
 *hist(runif(1000))*
 
 and the distribution of 1000 averages of 40 random uniforms
+
 *mns = NULL
 for (i in 1 : 1000) mns = c(mns, mean(runif(40)))
 hist(mns)*
