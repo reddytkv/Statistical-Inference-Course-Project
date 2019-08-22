@@ -12,7 +12,7 @@ You will create a report to answer the questions. Given the nature of the series
 
 Each pdf report should be no more than 3 pages with 3 pages of supporting appendix material if needed (code, figures, etcetera).
 
-## Review criterialess 
+## Review criteria 
 Did you show where the distribution is centered at and compare it to the theoretical center of the distribution?
 Did you show how variable it is and compare it to the theoretical variance of the distribution?
 Did you perform an exploratory data analysis of at least a single plot or table highlighting basic features of the data?
