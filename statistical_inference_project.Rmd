@@ -1,6 +1,6 @@
 ---
-title: "Statistical_Inference_Simulation_Project- Part1"
-author: "Venkat"
+title: "Statistical_Inference_Simulation_Project- Part1&2"
+author: "Venkat.T"
 date: "8/19/2019"
 output:
   pdf_document: default
@@ -15,15 +15,14 @@ knitr::opts_chunk$set(echo = TRUE)
 
 The project consists of two parts:
 
-1. A simulation exercise.
-2. Basic inferential data analysis.
+1. A simulation exercise - This is investgation of exponential distribution for the data generated using rexp().
+2. Basic inferential data analysis - This is analysis of the Tooth growth data and inference of the results.
 
-You will create a report to answer the questions. 
-Given the nature of the series, ideally you'll use knitr to create the reports and convert to a pdf.
 
-### Part 1: Simulation Exercise Instructions
 
-## Overview
+## Part 1: Simulation Exercise with exponential distribution
+
+### Overview
 In this project you will investigate the exponential distribution in R and compare it with the Central Limit Theorem. The exponential distribution can be simulated in R with rexp(n, lambda) where lambda is the rate parameter. The mean of exponential distribution is 1/lambda and the standard deviation is also 1/lambda. Set lambda = 0.2 for all of the simulations. You will investigate the distribution of averages of 40 exponentials. Note that you will need to do a thousand simulations.
 
 Illustrate via simulation and associated explanatory text the properties of the distribution of the mean of 40 exponentials. 
@@ -39,7 +38,7 @@ You should
 4. In point 3, focus on the difference between the distribution of a large collection of random exponentials and the distribution of a large collection of averages of 40 exponentials.
 
 
-### Variables and Data Generation
+### Variables and Data Simulation
 Based on above requirements, we are defining the variables and also using rexp() generate sample data and using sapply simulate it 1000 times.
 ```{r variables}
 #set seed for reproducibility
@@ -56,7 +55,7 @@ length(avg)
 
 
 
-### 1. Compare the distribution with theoretical distribution
+### 1. Compare Sample Mean versus Theoretical Mean
 
 - For the __simulated data__,  <br />
 Mean of distribution   : __``r mean(avg)`` __
@@ -67,7 +66,7 @@ mean of distribution is __``r 1/lambda``__
 
 Difference between the 2 distributions: ``r (1/lambda - mean(avg))``
 
-### 2. How variable it is and compare it to the theoretical variable of the distribution? 
+### 2. Sample Variance versus Theoretical Variance
 
 - For the __generated data__, <br />
 the standard deviation: ``r sd(avg)`` & the __variance is : ``r sd(avg)^2``__
@@ -79,7 +78,7 @@ The standard deviation: ``r (1/lambda)/sqrt(40)`` & the __variance is: ``r ((1/l
 <br />
 <br />
 
-### 3. Perform an exploratory data analysis of at least a single plot or table highlighting basic features of the data?
+### 3. Distribution
 ```{r expl_analysis}
 ## Now plot the data as histogram
 hist(avg, xlab="Mean", ylab="Frequency")
@@ -92,13 +91,101 @@ Based on output of the histogram, it follows the bell curve, indicating the data
 Based on the samples, the best estimate would be the sample mean, i.e.here it is 5. But if we have to tell how uncertain we are of this estimate, we need capture the confidence interval.
 
 We can calculate a 95% confidence interval for a sample mean by adding and subtracting 1.96 standard errors to the point estimate.
+$$ \bar{X} \pm 1.96\frac{S}{\sqrt{n}}$$.
 
 ```{r confidence_interval}
-
-se = sd(avg)/sqrt(n)
-low = mean(avg) - 1.96*se
-high= mean(avg) + 1.96*se
+low = mean(avg) - 1.96*(sd(avg)/sqrt(n))
+high= mean(avg) + 1.96*(sd(avg)/sqrt(n))
 print(c(low, high))
 ```
 
 Based on the output we can say __with 95% confdence that the true mean lies between ``r c(low,high)``__
+
+### Conclusion for Simulation
+
+- The bell curve of the hostogram indicate this is Normal distribution.
+- We see that the normal distribution indeed closely matches the barplot of the means.
+- We can tell with 95% confidence interval that true mean lies between ``r c(low,high)``
+
+## Part 2: Basic inferential data analysis
+
+### Introduction
+Now in the second portion of the project, we're going to analyze the ToothGrowth data in the R datasets package.
+
+We examine the ToothGrowth dataset in the R datasets package and analyzes the growth by supp and dose.The dataset records the length of odontoblasts (cells responsible for tooth growth) in 60 guinea pigs. Each animal received one of three dose levels of vitamin C (0.5, 1, and 2 mg/day) by one of two delivery methods, (orange juice or ascorbic acid (a form of vitamin C and coded as VC).
+
+### Sammary
+#### Load data and analyze data
+```{r p2_tooth_data}
+library(ggplot2)
+library(datasets)
+library(dplyr)
+## Now load tg=he toonth growth data
+data("ToothGrowth")
+
+# now evalaute and verify the data
+summary(ToothGrowth)
+# check the data types
+str(ToothGrowth)
+
+head(ToothGrowth)
+
+```
+
+Based on the data summary, we see that data cintauns 3 variables - (Len, Supp, dose) and 60 observations.
+The str() function shows that the variables - length & dose are numeric and suppliment(supp) is a string with values OJ(orange Juice) and VC(vitamin C).
+
+First, we evaluate the tooth growth length, Suppliment and Dosage relation.
+```{r p2_tooth_supp_plot}
+qplot(x=supp,y=len,data=ToothGrowth, facets=~dose, main="Tooth growth by supplement type & dosage",xlab="supplement type", ylab="tooth length") + geom_boxplot(aes(fill = supp))
+
+```
+
+### Inferential Statistics
+
+To test whether the dosage method has a statistically significant effect on tooth length, we perform a t-test against the two groups.
+For this let's start by splitting the data by the dosage, so that we can perform t-test on each dosage size group.
+```{r p2_dosage_groups}
+dose_0.5 <- filter(ToothGrowth, dose == 0.5)
+dose_1.0 <- filter(ToothGrowth, dose == 1.0)
+dose_2.0 <- filter(ToothGrowth, dose == 2.0)
+
+```
+This will help us test if the OJ or VC supp methods have any statistical difference in lean length.
+
+Perform p-value test for dosage = 0.5.
+```{r p2_t_test_05}
+t_test_dose_0.5 <- t.test(len ~ supp, data = dose_0.5, paired = FALSE)
+print(t_test_dose_0.5)
+```
+
+We can see that with a P-value of 0.006, the results are not statistically significant at the 95% confidence level and that the confidence interval contains zero. Thus, we cannot reject the null hypothesis that the dosage method has no effect on tooth length.
+
+<br />
+Now perform p-value test for dosage 1.0:
+
+```{r p2_t_test_1.0}
+t_test_dose_1.0 <- t.test(len ~ supp, data = dose_1.0, paired = FALSE)
+print(t_test_dose_1.0)
+
+```
+
+In this instance, the P-value is 0.001 and we can reject the null hypothesis at the 95% confidence level. We can also see that the 95% confidence interval excludes 0.
+
+<br />
+Now perform p-value test for dosage 2.0:
+
+```{r p2_t_test_2.0}
+t_test_dose_2.0 <- t.test(len ~ supp, data = dose_2.0, paired = FALSE)
+print(t_test_dose_2.0)
+
+```
+
+In this instance, the P-value is 0.9 and we can *NOT* reject the null hypothesis at the 95% confidence level. We can also see that the 95% confidence interval includes 0.
+<br />
+
+### Assumptions and Conclusions
+
+Assuming that the sample is a simple random sample and that the data follows a normal probability distribution. 
+<br />
+From the tests we can reject the null hypothesis that Vitamin C dosage method at the dosage levels 0.5 and 1.0 mg/day has no statistically significant effect on tooth growth at the 95% confidence level, except when the dosage is high - 2.0 mg/ml.
